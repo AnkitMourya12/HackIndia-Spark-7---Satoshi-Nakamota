@@ -1,0 +1,47 @@
+version: "2.0"
+
+services:
+  rair-node:
+    image: rairprotocol/sha256:2f0caa44ce7986a98af5490818dacaa9cbb0af559080f2dd3e2b4e5da618fd6a  # Your Docker image
+    expose:
+      - port: 3000
+        as: 3000
+        to:
+          - global: false
+      - port: 5000
+        as: 5000
+        to:
+          - global: false
+    environment:
+      MONGO_URI_LOCAL: mongodb://admin:admin@mongo:27017/rair-db?authSource
+      ADMIN_NETWORK: 0x2105
+      ADMIN_CONTRACT: 0xfc3666266d129504dd6c713f9bce107747ae4aee
+      APP_NAME: Test_Deployment
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      SESSION_SECRET: testing
+      BASE_BCN_URL: http://rair-sync:5001
+
+profiles:
+  compute:
+    rair-node:
+      resources:
+        cpu:
+          units: 1
+        memory:
+          size: 2Gi
+        storage:
+          size: 5Gi  # Ephemeral Storage
+
+  placement:
+    dcloud:
+      pricing:
+        rair-node:
+          denom: uakt
+          amount: 0.001  # Max price per block
+
+deployment:
+  rair-node:
+    dcloud:
+      profile: rair-node
+      count: 1
